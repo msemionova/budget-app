@@ -8,7 +8,7 @@ export function cn(...inputs: ClassValue[]) {
 
 export const groupByDate = (operations: Operation[]) => {
   return operations.reduce((groups: Record<string, Operation[]>, operation) => {
-    const date = new Date(operation.date).toLocaleDateString()
+    const date = new Date(Date.parse(operation.date)).toLocaleDateString()
     if (!groups[date]) {
       groups[date] = []
     }
@@ -18,7 +18,13 @@ export const groupByDate = (operations: Operation[]) => {
 }
 
 export function formatDate(dateString: string): string {
-  const date = new Date(dateString)
+  // Ensure the dateString is parsed correctly
+  const date = new Date(Date.parse(dateString))
+
+  // Check for invalid date
+  if (isNaN(date.getTime())) {
+    return 'Invalid Date'
+  }
 
   const daysOfWeek = [
     'Воскресенье',
