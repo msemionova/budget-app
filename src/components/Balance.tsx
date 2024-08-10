@@ -1,6 +1,7 @@
 import React from 'react'
 import { Button } from './ui'
 import { BalanceProps } from '@/lib/types'
+import { LogIn, LogOut } from 'lucide-react'
 
 const Balance: React.FC<BalanceProps> = ({
   balance,
@@ -21,14 +22,14 @@ const Balance: React.FC<BalanceProps> = ({
             onClick={handleLogout}
             className="p-2 bg-red-500 text-white rounded"
           >
-            Выйти
+            <LogOut />
           </Button>
         ) : (
           <Button
             onClick={() => setIsLoginOpened(true)}
             className="p-2 bg-blue-500 text-white rounded"
           >
-            Войти
+            <LogIn />
           </Button>
         )}
       </div>

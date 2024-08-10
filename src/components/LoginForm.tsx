@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Button, Input } from './ui'
 import { LoginFormProps } from '@/lib/types'
+import { LogIn, Undo2 } from 'lucide-react'
 
 const LoginForm: React.FC<LoginFormProps> = ({ onLogin, setIsLoginOpened }) => {
   const [username, setUsername] = useState('')
@@ -37,13 +38,15 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin, setIsLoginOpened }) => {
         type="submit"
         className="p-2 bg-blue-500 text-white rounded w-full mb-4"
       >
-        Войти как редактор
+        <LogIn />
+        <p className="ml-2">Войти как редактор</p>
       </Button>
       <Button
         onClick={() => setIsLoginOpened(false)}
         className="p-2 bg-gray-500 text-white rounded w-full"
       >
-        Вернуться обратно
+        <Undo2 />
+        <p className="ml-2">Вернуться обратно</p>
       </Button>
     </form>
   )
