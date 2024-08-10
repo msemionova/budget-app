@@ -2,7 +2,7 @@ import React from 'react'
 import { Button } from './ui'
 import { Pencil, Trash } from 'lucide-react'
 import { OperationsLogProps } from '@/lib/types'
-import { groupByDate, formatDate } from '@/lib/utils'
+import { groupByDate, formatDate, formatDateTimeForDisplay } from '@/lib/utils'
 
 const OperationsLog: React.FC<OperationsLogProps> = ({
   operations,
@@ -34,7 +34,9 @@ const OperationsLog: React.FC<OperationsLogProps> = ({
                     </b>
                     <span>{op.description ? `: ${op.description}` : ''}</span>
                     <br />
-                    <small className="text-gray-500">{op.date}</small>
+                    <small className="text-gray-500">
+                      {formatDateTimeForDisplay(op.date)}
+                    </small>
                   </div>
                   {isAuthenticated && (
                     <div className="flex gap-2 lg:group-hover:flex lg:hidden">

@@ -87,7 +87,7 @@ export default function Home() {
         amount: formattedAmount,
         description,
         type,
-        date: new Date().toLocaleString(),
+        date: new Date().toISOString(),
       }
 
       const updatedOperations = [...operations, newOperation]

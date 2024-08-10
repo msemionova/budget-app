@@ -8,7 +8,7 @@ export function cn(...inputs: ClassValue[]) {
 
 export const groupByDate = (operations: Operation[]) => {
   return operations.reduce((groups: Record<string, Operation[]>, operation) => {
-    const date = new Date(Date.parse(operation.date)).toLocaleDateString()
+    const date = operation.date.split('T')[0]
     if (!groups[date]) {
       groups[date] = []
     }
@@ -17,14 +17,20 @@ export const groupByDate = (operations: Operation[]) => {
   }, {})
 }
 
-export function formatDate(dateString: string): string {
-  // Ensure the dateString is parsed correctly
-  const date = new Date(Date.parse(dateString))
+export function formatDateTimeForDisplay(dateString: string): string {
+  const date = new Date(dateString)
 
-  // Check for invalid date
-  if (isNaN(date.getTime())) {
-    return 'Invalid Date'
-  }
+  const day = String(date.getDate()).padStart(2, '0')
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const year = date.getFullYear()
+  const hours = String(date.getHours()).padStart(2, '0')
+  const minutes = String(date.getMinutes()).padStart(2, '0')
+
+  return `${day}/${month}/${year} ${hours}:${minutes}`
+}
+
+export function formatDate(dateString: string): string {
+  const date = new Date(dateString)
 
   const daysOfWeek = [
     'Воскресенье',
