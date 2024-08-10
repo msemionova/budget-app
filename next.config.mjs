@@ -2,6 +2,9 @@
 const nextConfig = {
   output: 'export', // Ensure static export is enabled
   basePath: '/budget-app', // Set this to the subpath of your GitHub Pages site
+  images: {
+    unoptimized: true,
+  },
 }
 
 export default nextConfig
