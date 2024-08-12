@@ -21,6 +21,7 @@ export interface OperationFormProps {
   ) => void
   initialOperation?: Operation | null
   isAuthenticated: boolean
+  scrollY?: number
 }
 
 export interface OperationsLogProps {
@@ -28,6 +29,7 @@ export interface OperationsLogProps {
   onEdit: (id: string) => void
   onDelete: (id: string) => void
   isAuthenticated: boolean
+  setPreviousScrollPosition: (scrollY: number) => void
 }
 
 export interface LoginFormProps {

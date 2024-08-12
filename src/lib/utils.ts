@@ -1,6 +1,20 @@
 import { type ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 import { Operation } from '@/lib/types'
+import { daysOfWeek, months } from '@/lib/data'
+
+export const handleScrollById = (id: string) => {
+  const targetElement = document.querySelector(id)
+  if (targetElement) {
+    targetElement.scrollIntoView({ behavior: 'smooth' })
+  }
+}
+
+export const handleScrollByNumber = (scrollY: number) => {
+  if (scrollY && window !== undefined) {
+    window.scrollTo({ top: scrollY, behavior: 'smooth' })
+  }
+}
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -17,7 +31,7 @@ export const groupByDate = (operations: Operation[]) => {
   }, {})
 }
 
-export function formatDateTimeForDisplay(dateString: string): string {
+export function displayDateTime(dateString: string): string {
   const date = new Date(dateString)
 
   const day = String(date.getDate()).padStart(2, '0')
@@ -29,36 +43,30 @@ export function formatDateTimeForDisplay(dateString: string): string {
   return `${day}/${month}/${year} ${hours}:${minutes}`
 }
 
-export function formatDate(dateString: string): string {
+export function displayDate(dateString: string): string {
   const date = new Date(dateString)
-
-  const daysOfWeek = [
-    'Воскресенье',
-    'Понедельник',
-    'Вторник',
-    'Среда',
-    'Четверг',
-    'Пятница',
-    'Суббота',
-  ]
-  const months = [
-    'Января',
-    'Февраля',
-    'Марта',
-    'Апреля',
-    'Мая',
-    'Июня',
-    'Июля',
-    'Августа',
-    'Сентября',
-    'Октября',
-    'Ноября',
-    'Декабря',
-  ]
 
   const dayOfWeek = daysOfWeek[date.getDay()]
   const month = months[date.getMonth()]
   const dayOfMonth = date.getDate()
 
   return `${dayOfWeek}, ${dayOfMonth} ${month}`
+}
+
+export const displayMonthYear = () => {
+  let now, year, month
+  now = new Date()
+  year = now.getFullYear()
+  month = now.getMonth()
+  return `${months[month]} ${year}`
+}
+
+export const calculateTotalByType = (operations: Operation[], type: string) => {
+  let sum = 0
+  operations
+    .filter((operation) => operation.type === type)
+    .forEach((operation) => {
+      sum += operation.amount
+    })
+  return sum
 }
