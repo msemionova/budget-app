@@ -3,11 +3,12 @@ import { useEffect, useState } from 'react'
 import { Balance, OperationForm, OperationsLog, LoginForm } from '../components'
 import { v4 as uuidv4 } from 'uuid'
 import { Operation } from '@/lib/types'
-import { adminCredentials, mockOperations } from '@/lib/data'
+// import { adminCredentials, mockOperations } from '@/lib/data'
+import { adminCredentials } from '@/lib/data'
 
 export default function Home() {
   const [balance, setBalance] = useState<number>(0)
-  const [operations, setOperations] = useState<Operation[]>(mockOperations)
+  const [operations, setOperations] = useState<Operation[]>([])
   const [editingOperation, setEditingOperation] = useState<Operation | null>(
     null
   )
@@ -44,7 +45,7 @@ export default function Home() {
 
   useEffect(() => {
     const savedOperations = JSON.parse(
-      localStorage.getItem('operations') || JSON.stringify(mockOperations)
+      localStorage.getItem('operations') || JSON.stringify([])
     )
     setOperations(savedOperations)
     const initialBalance = savedOperations.reduce(
