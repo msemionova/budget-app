@@ -19,7 +19,7 @@ const OperationsLog: React.FC<OperationsLogProps> = ({
   const groupedOperations = groupByDate(operations)
 
   const sortedDateGroups = Object.keys(groupedOperations).sort(
-    (a: any, b: any) => {
+    (a: string, b: string) => {
       let date1 = new Date(a).getTime()
       let date2 = new Date(b).getTime()
       return date2 - date1

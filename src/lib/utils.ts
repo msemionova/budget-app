@@ -27,6 +27,11 @@ export const groupByDate = (operations: Operation[]) => {
       groups[date] = []
     }
     groups[date].push(operation)
+
+    groups[date].sort((a, b) => {
+      return new Date(b.date).getTime() - new Date(a.date).getTime()
+    })
+
     return groups
   }, {})
 }
