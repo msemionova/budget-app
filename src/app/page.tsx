@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { Balance, OperationForm, OperationsLog, LoginForm } from '../components'
 import { v4 as uuidv4 } from 'uuid'
 import { Operation } from '@/lib/types'
+// import { adminCredentials, mockOperations } from '@/lib/data'
 import { adminCredentials } from '@/lib/data'
 
 export default function Home() {
@@ -12,7 +13,7 @@ export default function Home() {
     null
   )
   const [isLoginOpened, setIsLoginOpened] = useState(false)
-
+  const [previousScrollPosition, setPreviousScrollPosition] = useState(0)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
 
   useEffect(() => {
@@ -44,7 +45,7 @@ export default function Home() {
 
   useEffect(() => {
     const savedOperations = JSON.parse(
-      localStorage.getItem('operations') || '[]'
+      localStorage.getItem('operations') || JSON.stringify([])
     )
     setOperations(savedOperations)
     const initialBalance = savedOperations.reduce(
@@ -137,6 +138,7 @@ export default function Home() {
           <div className="lg:max-w-[70%] m-auto">
             {isAuthenticated && (
               <OperationForm
+                scrollY={previousScrollPosition}
                 onAddOperation={handleAddOperation}
                 initialOperation={editingOperation}
                 isAuthenticated={isAuthenticated}
@@ -147,6 +149,7 @@ export default function Home() {
               onEdit={handleEditOperation}
               onDelete={handleDeleteOperation}
               isAuthenticated={isAuthenticated}
+              setPreviousScrollPosition={setPreviousScrollPosition}
             />
           </div>
         </>

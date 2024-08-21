@@ -11,8 +11,8 @@ const Balance: React.FC<BalanceProps> = ({
 }) => {
   return (
     <div className="flex p-4 bg-gray-200 rounded-lg justify-between items-center">
-      <div></div>
-      <div>
+      <div className="w-4"></div>
+      <div className="text-center">
         <h2 className="text-lg font-bold">Текущий баланс:</h2>
         <p className="text-2xl">{balance.toFixed(2)} MDL</p>
       </div>
