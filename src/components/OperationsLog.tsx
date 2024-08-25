@@ -1,5 +1,15 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Button } from './ui'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+  DialogClose,
+} from '@/components/ui/dialog'
 import { Pencil, Trash } from 'lucide-react'
 import { OperationsLogProps } from '@/lib/types'
 import {
@@ -16,6 +26,7 @@ const OperationsLog: React.FC<OperationsLogProps> = ({
   isAuthenticated,
   setPreviousScrollPosition,
 }) => {
+  const [isModalOpen, setIsModalOpen] = useState(false)
   const groupedOperations = groupByDate(operations)
 
   const sortedDateGroups = Object.keys(groupedOperations).sort(
@@ -28,7 +39,6 @@ const OperationsLog: React.FC<OperationsLogProps> = ({
 
   return (
     <div className="p-4">
-      <h3 className="text-lg font-bold mb-2">Список транзакций:</h3>
       {sortedDateGroups.map((date) => (
         <div key={date} className="mb-4">
           <div className="text-slate-400 text-sm font-bold py-1 rounded mb-2">
@@ -75,14 +85,46 @@ const OperationsLog: React.FC<OperationsLogProps> = ({
                       >
                         <Pencil />
                       </Button>
-                      <Button
-                        variant="link"
-                        size="icon"
-                        onClick={() => onDelete(op.id)}
-                        className="text-slate-500"
-                      >
-                        <Trash />
-                      </Button>
+                      <Dialog>
+                        <DialogTrigger className="w-10 h-10">
+                          <Button
+                            variant="link"
+                            size="icon"
+                            className="text-slate-500"
+                          >
+                            <Trash />
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>
+                              Вы точно хотите удалить эту транзакцию?
+                            </DialogTitle>
+                            <DialogDescription>
+                              Это действие необратимо, данные будут удалены
+                              безвозвратно.
+                            </DialogDescription>
+                          </DialogHeader>
+                          <DialogFooter className="sm:justify-start">
+                            <DialogClose asChild>
+                              <div className="flex items-center justify-between w-full gap-5">
+                                <Button
+                                  type="button"
+                                  className="bg-slate-700 text-background"
+                                >
+                                  Назад
+                                </Button>
+                                <Button
+                                  onClick={() => onDelete(op.id)}
+                                  className="bg-impact text-background"
+                                >
+                                  Удалить
+                                </Button>
+                              </div>
+                            </DialogClose>
+                          </DialogFooter>
+                        </DialogContent>
+                      </Dialog>
                     </div>
                   )}
                 </div>

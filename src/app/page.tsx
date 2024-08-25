@@ -1,8 +1,17 @@
 'use client'
 import { useEffect, useState } from 'react'
 import { Balance, OperationForm, OperationsLog, LoginForm } from '../components'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../components/ui/select'
 import { v4 as uuidv4 } from 'uuid'
 import { Operation } from '@/lib/types'
+import { format, parseISO, isSameMonth } from 'date-fns'
+import { ru } from 'date-fns/locale'
 
 import { ref, onValue, off, update, remove, set, get } from 'firebase/database'
 import { realtimeDB, auth } from '../../firebase'
@@ -28,6 +37,31 @@ export default function Home() {
   const [previousScrollPosition, setPreviousScrollPosition] = useState(0)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  const [selectedMonth, setSelectedMonth] = useState<string>(
+    format(new Date(), 'yyyy-MM')
+  ) // Default to current month
+  const [monthsWithData, setMonthsWithData] = useState<string[]>([])
+
+  // Populate monthsWithData based on available operations
+  useEffect(() => {
+    const uniqueMonths = Array.from(
+      new Set(operations.map((op) => format(parseISO(op.date), 'yyyy-MM')))
+    )
+    setMonthsWithData(uniqueMonths)
+  }, [operations])
+
+  // Filter operations by the selected month
+  const filteredOperations = operations.filter((op) =>
+    isSameMonth(parseISO(op.date), new Date(selectedMonth))
+  )
+
+  const totalIncome = filteredOperations
+    .filter((op) => op.type === 'income')
+    .reduce((sum, op) => sum + op.amount, 0)
+
+  const totalOutcome = filteredOperations
+    .filter((op) => op.type === 'expense')
+    .reduce((sum, op) => sum + op.amount, 0)
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -237,12 +271,13 @@ export default function Home() {
       {isLoading ? (
         // Render a loading spinner or a loading message
         <div className="flex justify-center items-center h-screen">
-          <span className="font-bold text-[#ff1670]">Загрузка...</span>
+          <span className="font-bold text-impact">Загрузка...</span>
         </div>
       ) : isAuthenticated ? (
         <>
           <Balance balance={balance} handleLogout={handleLogout} />
-          <div className="mt-28">
+
+          <div className="mt-32">
             <div className="lg:max-w-[70%] mx-auto">
               {isAuthenticated && isEditor && (
                 <OperationForm
@@ -252,8 +287,41 @@ export default function Home() {
                   isAuthenticated={isAuthenticated}
                 />
               )}
+              <div className="px-4 pt-6 flex items-center justify-between w-full">
+                <div>
+                  <h3 className="text-lg font-bold">Транзакции за месяц:</h3>
+                  <div className="flex">
+                    <p className="text-emerald-500 font-bold">+{totalIncome}</p>
+                    <b className="w-5 text-center">|</b>
+                    <p className="text-impact font-bold">-{totalOutcome}</p>
+                  </div>
+                </div>
+
+                <Select
+                  defaultValue={selectedMonth}
+                  onValueChange={(value) => setSelectedMonth(value)}
+                >
+                  <SelectTrigger className="w-[180px] capitalize">
+                    <SelectValue placeholder="За месяц" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {monthsWithData.map((month) => (
+                      <SelectItem
+                        key={month}
+                        value={month}
+                        className="capitalize"
+                      >
+                        {format(parseISO(`${month}-01`), 'LLLL yyyy', {
+                          locale: ru,
+                        })}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
               <OperationsLog
-                operations={operations}
+                operations={filteredOperations}
                 onEdit={handleEditOperation}
                 onDelete={handleDeleteOperation}
                 isAuthenticated={isAuthenticated && isEditor}
