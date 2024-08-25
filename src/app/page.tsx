@@ -3,10 +3,9 @@ import { useEffect, useState } from 'react'
 import { Balance, OperationForm, OperationsLog, LoginForm } from '../components'
 import { v4 as uuidv4 } from 'uuid'
 import { Operation } from '@/lib/types'
-// import { adminCredentials, mockOperations } from '@/lib/data'
 import { adminCredentials } from '@/lib/data'
 
-import { ref, onValue, off } from 'firebase/database'
+import { ref, onValue, off, update, remove, set } from 'firebase/database'
 import { realtimeDB } from '../../firebase'
 
 export default function Home() {
@@ -86,41 +85,62 @@ export default function Home() {
   ) => {
     const formattedAmount = Number(amount)
     if (editingOperation) {
-      const updatedOperations = operations.map((op) => {
-        if (op.id === editingOperation.id) {
+      // Update the operation in Firebase
+      update(ref(realtimeDB, `operations/${editingOperation.id}`), {
+        amount: formattedAmount,
+        description,
+        type,
+        date: editingOperation.date, // Ensure the date is kept unchanged
+      })
+        .then(() => {
           const adjustedBalance =
-            op.type === 'income' ? balance - op.amount : balance + op.amount
+            editingOperation.type === 'income'
+              ? balance - editingOperation.amount
+              : balance + editingOperation.amount
           setBalance(
             type === 'income'
               ? adjustedBalance + formattedAmount
               : adjustedBalance - formattedAmount
           )
 
-          return { ...op, amount, description, type }
-        }
-        return op
-      })
+          const updatedOperations = operations.map((op) => {
+            if (op.id === editingOperation.id) {
+              return { ...op, amount: formattedAmount, description, type }
+            }
+            return op
+          })
 
-      setOperations(updatedOperations)
-      // Assuming you update operations in Firebase here
-      setEditingOperation(null)
+          setOperations(updatedOperations)
+          localStorage.setItem('operations', JSON.stringify(updatedOperations))
+          setEditingOperation(null)
+        })
+        .catch((error) => {
+          console.error('Error updating operation:', error)
+        })
     } else {
       const newOperation: Operation = {
         id: uuidv4(),
         amount: formattedAmount,
         description,
         type,
-        date: new Date().toISOString(),
+        date: new Date().toISOString(), // Ensure date is set when creating new operations
       }
 
-      const updatedOperations = [...operations, newOperation]
-      setOperations(updatedOperations)
-      setBalance(
-        type === 'income'
-          ? balance + formattedAmount
-          : balance - formattedAmount
-      )
-      // Assuming you add new operation to Firebase here
+      // Add the new operation to Firebase
+      set(ref(realtimeDB, `operations/${newOperation.id}`), newOperation)
+        .then(() => {
+          const updatedOperations = [...operations, newOperation]
+          setOperations(updatedOperations)
+          setBalance(
+            type === 'income'
+              ? balance + formattedAmount
+              : balance - formattedAmount
+          )
+          localStorage.setItem('operations', JSON.stringify(updatedOperations))
+        })
+        .catch((error) => {
+          console.error('Error adding operation:', error)
+        })
     }
   }
 
@@ -141,7 +161,8 @@ export default function Home() {
           ? balance - operationToDelete.amount
           : balance + operationToDelete.amount
       )
-      // Assuming you delete operation from Firebase here
+      // Delete operation from Firebase
+      remove(ref(realtimeDB, `operations/${id}`))
     }
   }
 
