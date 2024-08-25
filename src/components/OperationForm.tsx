@@ -40,7 +40,7 @@ const OperationForm: React.FC<OperationFormProps> = ({
       <div className="flex flex-auto justify-between w-full gap-2">
         <Input
           type="text"
-          placeholder="Детали (необязательно)"
+          placeholder="Детали"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           className="h-12 p-2 border rounded flex-1 min-w-[9rem] bg-slate-50 hover:border-[#ff1670] transition-all"
