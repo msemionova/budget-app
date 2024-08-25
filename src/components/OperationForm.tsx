@@ -43,14 +43,14 @@ const OperationForm: React.FC<OperationFormProps> = ({
           placeholder="Детали"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          className="h-12 p-2 border rounded flex-1 min-w-[9rem] bg-slate-50 hover:border-[#ff1670] transition-all"
+          className="h-12 p-2 border rounded flex-1 min-w-[9rem] bg-slate-50 hover:ring-2 hover:ring-impact transition-all"
         />
         <Input
           type="number"
           placeholder="Сумма"
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
-          className="h-12 p-2 border rounded flex-1 min-w-[9rem] lg:max-w-[9rem] bg-slate-50 hover:border-[#ff1670] transition-all"
+          className="h-12 p-2 border rounded flex-1 min-w-[9rem] lg:max-w-[9rem] bg-slate-50 hover:ring-2 hover:ring-impact transition-all"
           required
         />
       </div>
@@ -73,7 +73,7 @@ const OperationForm: React.FC<OperationFormProps> = ({
                 handleScrollByNumber(scrollY)
               }}
               type="submit"
-              className="h-12 p-2 bg-rose-500 text-white rounded min-w-[9rem]"
+              className="h-12 p-2 bg-impact text-white rounded min-w-[9rem]"
             >
               Изменить на: <Minus />
             </Button>
@@ -90,7 +90,7 @@ const OperationForm: React.FC<OperationFormProps> = ({
             <Button
               onClick={() => setType('expense')}
               type="submit"
-              className="h-12 p-2 bg-rose-500 text-white rounded min-w-[9rem]"
+              className="h-12 p-2 bg-impact text-white rounded min-w-[9rem]"
             >
               <Minus />
             </Button>

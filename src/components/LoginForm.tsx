@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Button, Input } from './ui'
 import { LoginFormProps } from '@/lib/types'
-import { LogIn, Undo2 } from 'lucide-react'
+import { LogIn } from 'lucide-react'
 import Image from 'next/image'
 
 const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
@@ -17,7 +17,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
     <div className="flex h-[90vh] items-center justify-center">
       <form onSubmit={handleSubmit} className="p-4 w-11/12 max-w-sm">
         <div className="flex items-center justify-center w-full mb-5">
-          <Image src="/logo.png" alt="Impact Logo" width={100} height={200} />
+          <Image src="/logo.png" alt="Impact Logo" width={200} height={400} />
         </div>
         <div className="mb-4">
           <Input
@@ -25,7 +25,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
             placeholder="Логин"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            className="h-12 p-2 border rounded w-full bg-slate-50 hover:border-[#ff1670] transition-all"
+            className="h-12 p-2 border rounded w-full bg-slate-50 hover:ring-2 hover:ring-impact transition-all"
             required
           />
         </div>
@@ -35,13 +35,13 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
             placeholder="Пароль"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="h-12 p-2 border rounded w-full  bg-slate-50 hover:border-[#ff1670] transition-all"
+            className="h-12 p-2 border rounded w-full  bg-slate-50 hover:ring-2 hover:ring-impact transition-all"
             required
           />
         </div>
         <Button
           type="submit"
-          className="h-12 p-2 bg-[#ff1670] text-white rounded w-full mb-4"
+          className="h-12 p-2 bg-impact text-white rounded w-full mb-4"
         >
           <LogIn />
           <p className="ml-2">Войти</p>
