@@ -39,19 +39,19 @@ const OperationForm: React.FC<OperationFormProps> = ({
     >
       <div className="flex flex-auto justify-between w-full gap-2">
         <Input
+          type="text"
+          placeholder="Детали (необязательно)"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          className="p-2 border rounded flex-1 min-w-[9rem]"
+        />
+        <Input
           type="number"
           placeholder="Сумма"
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
-          className="p-2 border rounded flex-1 min-w-[11rem] lg:max-w-[11rem]"
+          className="p-2 border rounded flex-1 min-w-[9rem] lg:max-w-[9rem]"
           required
-        />
-        <Input
-          type="text"
-          placeholder="Детали"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          className="p-2 border rounded flex-1 min-w-[11rem]"
         />
       </div>
       <div className="flex justify-between gap-2">
@@ -63,7 +63,7 @@ const OperationForm: React.FC<OperationFormProps> = ({
                 handleScrollByNumber(scrollY)
               }}
               type="submit"
-              className="p-2 bg-green-500 text-white rounded min-w-[11rem]"
+              className="p-2 bg-green-500 text-white rounded min-w-[9rem]"
             >
               Изменить на: <Plus />
             </Button>
@@ -73,7 +73,7 @@ const OperationForm: React.FC<OperationFormProps> = ({
                 handleScrollByNumber(scrollY)
               }}
               type="submit"
-              className="p-2 bg-orange-500 text-white rounded min-w-[11rem]"
+              className="p-2 bg-orange-500 text-white rounded min-w-[9rem]"
             >
               Изменить на: <Minus />
             </Button>
@@ -83,14 +83,14 @@ const OperationForm: React.FC<OperationFormProps> = ({
             <Button
               onClick={() => setType('income')}
               type="submit"
-              className="p-2 bg-green-500 text-white rounded min-w-[11rem]"
+              className="p-2 bg-green-500 text-white rounded min-w-[9rem]"
             >
               <Plus />
             </Button>
             <Button
               onClick={() => setType('expense')}
               type="submit"
-              className="p-2 bg-orange-500 text-white rounded min-w-[11rem]"
+              className="p-2 bg-orange-500 text-white rounded min-w-[9rem]"
             >
               <Minus />
             </Button>
