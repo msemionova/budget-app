@@ -1,7 +1,5 @@
 export interface BalanceProps {
   balance: number
-  isAuthenticated: boolean
-  setIsLoginOpened: (state: boolean) => void
   handleLogout: () => void
 }
 
@@ -34,5 +32,4 @@ export interface OperationsLogProps {
 
 export interface LoginFormProps {
   onLogin: (username: string, password: string) => void
-  setIsLoginOpened: (state: boolean) => void
 }

@@ -3,20 +3,57 @@ import { useEffect, useState } from 'react'
 import { Balance, OperationForm, OperationsLog, LoginForm } from '../components'
 import { v4 as uuidv4 } from 'uuid'
 import { Operation } from '@/lib/types'
-import { adminCredentials } from '@/lib/data'
 
-import { ref, onValue, off, update, remove, set } from 'firebase/database'
-import { realtimeDB } from '../../firebase'
+import { ref, onValue, off, update, remove, set, get } from 'firebase/database'
+import { realtimeDB, auth } from '../../firebase'
+import {
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged,
+} from 'firebase/auth'
+
+type User = {
+  email: string
+  id: string
+  role: 'viewer' | 'editor'
+}
 
 export default function Home() {
   const [operations, setOperations] = useState<Operation[]>([])
   const [balance, setBalance] = useState<number>(0)
+  const [userRole, setUserRole] = useState<'viewer' | 'editor'>('viewer')
   const [editingOperation, setEditingOperation] = useState<Operation | null>(
     null
   )
-  const [isLoginOpened, setIsLoginOpened] = useState(false)
   const [previousScrollPosition, setPreviousScrollPosition] = useState(0)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        setIsAuthenticated(true)
+        setIsLoading(false)
+        const uid = user.uid
+
+        // Fetch user role
+        const userRef = ref(realtimeDB, `users/${uid}`)
+        const snapshot = await get(userRef)
+        if (snapshot.exists()) {
+          const userData = snapshot.val()
+          setUserRole(userData.role)
+          localStorage.setItem('userRole', userData.role)
+        }
+      } else {
+        setIsAuthenticated(false)
+        setIsLoading(false)
+        setUserRole('viewer')
+        localStorage.setItem('userRole', 'viewer')
+      }
+    })
+
+    return () => unsubscribe()
+  }, [])
 
   useEffect(() => {
     const operationsRef = ref(realtimeDB, 'operations')
@@ -60,22 +97,49 @@ export default function Home() {
     }
   }, [])
 
-  const handleLogin = (username: string, password: string) => {
-    if (
-      username === adminCredentials.username &&
-      password === adminCredentials.password
-    ) {
-      setIsAuthenticated(true)
-      setIsLoginOpened(false)
-      localStorage.setItem('isAuthenticated', JSON.stringify(true))
-    } else {
+  const handleLogin = async (username: string, password: string) => {
+    try {
+      // Fetch email for the username
+      const usersRef = ref(realtimeDB, 'users')
+      const snapshot = await get(usersRef)
+      if (!snapshot.exists()) {
+        throw new Error('No user data found')
+      }
+
+      const users = snapshot.val() as Record<string, User>
+      const userEntry = Object.values(users).find(
+        (user: any) => user.email === username
+      )
+
+      if (!userEntry) {
+        throw new Error('Username not found')
+      }
+
+      const email = userEntry.email
+      const role = userEntry.role
+      const uid = Object.keys(users).find((key) => users[key].email === email)
+
+      // Sign in with the retrieved email
+      await signInWithEmailAndPassword(auth, email, password)
+
+      // Store role and UID in local state or context
+      localStorage.setItem('userRole', role)
+      localStorage.setItem('userUID', uid || '')
+      console.log('User logged in successfully')
+    } catch (error) {
       alert('Invalid credentials!')
+      console.error('Error logging in:', error)
     }
   }
 
-  const handleLogout = () => {
-    setIsAuthenticated(false)
-    localStorage.setItem('isAuthenticated', JSON.stringify(false))
+  const handleLogout = async () => {
+    try {
+      await signOut(auth)
+      setIsAuthenticated(false)
+      localStorage.setItem('isAuthenticated', JSON.stringify(false))
+    } catch (error) {
+      console.error('Error logging out:', error)
+    }
   }
 
   const handleAddOperation = (
@@ -166,20 +230,20 @@ export default function Home() {
     }
   }
 
+  const isEditor = userRole === 'editor'
+
   return (
-    <div className="min-h-screen bg-gray-100 p-4">
-      {isLoginOpened ? (
-        <LoginForm onLogin={handleLogin} setIsLoginOpened={setIsLoginOpened} />
-      ) : (
+    <div className="min-h-screen bg-white p-4">
+      {isLoading ? (
+        // Render a loading spinner or a loading message
+        <div className="flex justify-center items-center h-screen">
+          <span className="font-bold text-[#ff1670]">Загрузка...</span>
+        </div>
+      ) : isAuthenticated ? (
         <>
-          <Balance
-            balance={balance}
-            isAuthenticated={isAuthenticated}
-            setIsLoginOpened={setIsLoginOpened}
-            handleLogout={handleLogout}
-          />
-          <div className="lg:max-w-[70%] m-auto">
-            {isAuthenticated && (
+          <Balance balance={balance} handleLogout={handleLogout} />
+          <div className="lg:max-w-[70%] mx-auto mt-28">
+            {isAuthenticated && isEditor && (
               <OperationForm
                 scrollY={previousScrollPosition}
                 onAddOperation={handleAddOperation}
@@ -191,11 +255,13 @@ export default function Home() {
               operations={operations}
               onEdit={handleEditOperation}
               onDelete={handleDeleteOperation}
-              isAuthenticated={isAuthenticated}
+              isAuthenticated={isAuthenticated && isEditor}
               setPreviousScrollPosition={setPreviousScrollPosition}
             />
           </div>
         </>
+      ) : (
+        <LoginForm onLogin={handleLogin} />
       )}
     </div>
   )
