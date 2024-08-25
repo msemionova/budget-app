@@ -29,8 +29,9 @@ yarn-error.log*
 .env*.local
 .env
 
-# vercel
+# vercel & firebase
 .vercel
+.firebase
 
 # typescript
 *.tsbuildinfo
