@@ -242,22 +242,24 @@ export default function Home() {
       ) : isAuthenticated ? (
         <>
           <Balance balance={balance} handleLogout={handleLogout} />
-          <div className="lg:max-w-[70%] mx-auto mt-28">
-            {isAuthenticated && isEditor && (
-              <OperationForm
-                scrollY={previousScrollPosition}
-                onAddOperation={handleAddOperation}
-                initialOperation={editingOperation}
-                isAuthenticated={isAuthenticated}
+          <div className="mt-28">
+            <div className="lg:max-w-[70%] mx-auto">
+              {isAuthenticated && isEditor && (
+                <OperationForm
+                  scrollY={previousScrollPosition}
+                  onAddOperation={handleAddOperation}
+                  initialOperation={editingOperation}
+                  isAuthenticated={isAuthenticated}
+                />
+              )}
+              <OperationsLog
+                operations={operations}
+                onEdit={handleEditOperation}
+                onDelete={handleDeleteOperation}
+                isAuthenticated={isAuthenticated && isEditor}
+                setPreviousScrollPosition={setPreviousScrollPosition}
               />
-            )}
-            <OperationsLog
-              operations={operations}
-              onEdit={handleEditOperation}
-              onDelete={handleDeleteOperation}
-              isAuthenticated={isAuthenticated && isEditor}
-              setPreviousScrollPosition={setPreviousScrollPosition}
-            />
+            </div>
           </div>
         </>
       ) : (
