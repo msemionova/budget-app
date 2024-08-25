@@ -31,7 +31,7 @@ const OperationsLog: React.FC<OperationsLogProps> = ({
       <h3 className="text-lg font-bold mb-2">Список транзакций:</h3>
       {sortedDateGroups.map((date) => (
         <div key={date} className="mb-4">
-          <div className="bg-gray-300 text-gray-800 text-sm font-bold px-2 py-1 rounded mb-2">
+          <div className="text-slate-400 text-sm font-bold py-1 rounded mb-2">
             {displayDate(date)}
           </div>
           <ul className="space-y-2">
@@ -39,7 +39,7 @@ const OperationsLog: React.FC<OperationsLogProps> = ({
               <li
                 id={`operation-${op.id}`}
                 key={op.id}
-                className={`group p-2 border rounded ${op.type === 'income' ? 'bg-green-100' : 'bg-red-100'}`}
+                className={`group p-2 rounded ${op.type === 'income' ? 'bg-emerald-50' : 'bg-rose-50'}`}
               >
                 <div className="flex justify-between">
                   <div>
