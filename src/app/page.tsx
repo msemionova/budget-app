@@ -6,15 +6,51 @@ import { Operation } from '@/lib/types'
 // import { adminCredentials, mockOperations } from '@/lib/data'
 import { adminCredentials } from '@/lib/data'
 
+import { ref, onValue, off } from 'firebase/database'
+import { realtimeDB } from '../../firebase'
+
 export default function Home() {
-  const [balance, setBalance] = useState<number>(0)
   const [operations, setOperations] = useState<Operation[]>([])
+  const [balance, setBalance] = useState<number>(0)
   const [editingOperation, setEditingOperation] = useState<Operation | null>(
     null
   )
   const [isLoginOpened, setIsLoginOpened] = useState(false)
   const [previousScrollPosition, setPreviousScrollPosition] = useState(0)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
+
+  useEffect(() => {
+    const operationsRef = ref(realtimeDB, 'operations')
+
+    const handleData = (snapshot: any) => {
+      const data = snapshot.val()
+      if (data) {
+        // Explicitly cast the data to an object with string keys and Operation values
+        const operationsArray = Object.values(data) as Operation[]
+        setOperations(operationsArray)
+        const initialBalance = operationsArray.reduce(
+          (acc: number, op: Operation) => {
+            return op.type === 'income' ? acc + op.amount : acc - op.amount
+          },
+          0
+        )
+        setBalance(initialBalance)
+      }
+    }
+
+    const handleError = (error: Error) => {
+      console.error('Firebase error:', error) // Debugging line
+    }
+
+    // Attach the listener
+    const unsubscribe = onValue(operationsRef, handleData, handleError)
+
+    // Cleanup function
+    return () => {
+      off(operationsRef, 'value', handleData)
+      unsubscribe() // Ensure you clean up the listener
+    }
+  }, [])
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -43,20 +79,6 @@ export default function Home() {
     localStorage.setItem('isAuthenticated', JSON.stringify(false))
   }
 
-  useEffect(() => {
-    const savedOperations = JSON.parse(
-      localStorage.getItem('operations') || JSON.stringify([])
-    )
-    setOperations(savedOperations)
-    const initialBalance = savedOperations.reduce(
-      (acc: number, op: Operation) => {
-        return op.type === 'income' ? acc + op.amount : acc - op.amount
-      },
-      0
-    )
-    setBalance(initialBalance)
-  }, [])
-
   const handleAddOperation = (
     amount: number,
     description: string,
@@ -80,7 +102,7 @@ export default function Home() {
       })
 
       setOperations(updatedOperations)
-      localStorage.setItem('operations', JSON.stringify(updatedOperations))
+      // Assuming you update operations in Firebase here
       setEditingOperation(null)
     } else {
       const newOperation: Operation = {
@@ -93,12 +115,12 @@ export default function Home() {
 
       const updatedOperations = [...operations, newOperation]
       setOperations(updatedOperations)
-      localStorage.setItem('operations', JSON.stringify(updatedOperations))
       setBalance(
         type === 'income'
           ? balance + formattedAmount
           : balance - formattedAmount
       )
+      // Assuming you add new operation to Firebase here
     }
   }
 
@@ -114,12 +136,12 @@ export default function Home() {
     if (operationToDelete) {
       const updatedOperations = operations.filter((op) => op.id !== id)
       setOperations(updatedOperations)
-      localStorage.setItem('operations', JSON.stringify(updatedOperations))
       setBalance(
         operationToDelete.type === 'income'
           ? balance - operationToDelete.amount
           : balance + operationToDelete.amount
       )
+      // Assuming you delete operation from Firebase here
     }
   }
 
