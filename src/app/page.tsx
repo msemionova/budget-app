@@ -289,7 +289,9 @@ export default function Home() {
               )}
               <div className="px-4 pt-6 flex items-center justify-between w-full">
                 <div>
-                  <h3 className="text-lg font-bold">Транзакции за месяц:</h3>
+                  <h3 className="text-sm font-bold sm:text-lg">
+                    Операции за месяц:
+                  </h3>
                   <div className="flex">
                     <p className="text-emerald-500 font-bold">+{totalIncome}</p>
                     <b className="w-5 text-center">|</b>
@@ -301,7 +303,7 @@ export default function Home() {
                   defaultValue={selectedMonth}
                   onValueChange={(value) => setSelectedMonth(value)}
                 >
-                  <SelectTrigger className="w-[180px] capitalize">
+                  <SelectTrigger className="w-[9rem] capitalize">
                     <SelectValue placeholder="За месяц" />
                   </SelectTrigger>
                   <SelectContent>

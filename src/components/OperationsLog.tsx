@@ -98,7 +98,7 @@ const OperationsLog: React.FC<OperationsLogProps> = ({
                         <DialogContent>
                           <DialogHeader>
                             <DialogTitle>
-                              Вы точно хотите удалить эту транзакцию?
+                              Вы точно хотите удалить эту операцию?
                             </DialogTitle>
                             <DialogDescription>
                               Это действие необратимо, данные будут удалены
