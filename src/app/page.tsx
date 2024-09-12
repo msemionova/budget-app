@@ -133,33 +133,31 @@ export default function Home() {
 
   const handleLogin = async (username: string, password: string) => {
     try {
-      // Fetch email for the username
-      const usersRef = ref(realtimeDB, 'users')
-      const snapshot = await get(usersRef)
-      if (!snapshot.exists()) {
-        throw new Error('No user data found')
-      }
-
-      const users = snapshot.val() as Record<string, User>
-      const userEntry = Object.values(users).find(
-        (user: any) => user.email === username
+      // Sign in with email and password
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        username,
+        password
       )
+      const user = userCredential.user
 
-      if (!userEntry) {
-        throw new Error('Username not found')
+      if (user) {
+        // Fetch additional user data after authentication
+        const uid = user.uid
+        const userRef = ref(realtimeDB, `users/${uid}`)
+        const snapshot = await get(userRef)
+
+        if (snapshot.exists()) {
+          const userData = snapshot.val()
+          const role = userData.role || 'viewer' // Default role
+          localStorage.setItem('userRole', role)
+          localStorage.setItem('userUID', uid)
+          console.log('User logged in successfully')
+          setIsAuthenticated(true)
+        } else {
+          throw new Error('User data not found')
+        }
       }
-
-      const email = userEntry.email
-      const role = userEntry.role
-      const uid = Object.keys(users).find((key) => users[key].email === email)
-
-      // Sign in with the retrieved email
-      await signInWithEmailAndPassword(auth, email, password)
-
-      // Store role and UID in local state or context
-      localStorage.setItem('userRole', role)
-      localStorage.setItem('userUID', uid || '')
-      console.log('User logged in successfully')
     } catch (error) {
       alert('Invalid credentials!')
       console.error('Error logging in:', error)
