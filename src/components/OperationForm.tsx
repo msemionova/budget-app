@@ -39,19 +39,19 @@ const OperationForm: React.FC<OperationFormProps> = ({
     >
       <div className="flex flex-auto justify-between w-full gap-2">
         <Input
-          type="text"
-          placeholder="Детали"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          className="h-12 p-2 border rounded flex-1 min-w-[9rem] bg-slate-50 hover:ring-2 hover:ring-impact transition-all"
-        />
-        <Input
           type="number"
           placeholder="Сумма"
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
           className="h-12 p-2 border rounded flex-1 min-w-[9rem] lg:max-w-[9rem] bg-slate-50 hover:ring-2 hover:ring-impact transition-all"
           required
+        />
+        <Input
+          type="text"
+          placeholder="Детали"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          className="h-12 p-2 border rounded flex-1 min-w-[9rem] bg-slate-50 hover:ring-2 hover:ring-impact transition-all"
         />
       </div>
       <div className="flex justify-between gap-2">

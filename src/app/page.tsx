@@ -8,6 +8,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../components/ui/select'
+import { Alert, AlertTitle } from '../components/ui/alert'
+import { LockKeyhole } from 'lucide-react'
 import { v4 as uuidv4 } from 'uuid'
 import { Operation } from '@/lib/types'
 import { format, parseISO, isSameMonth } from 'date-fns'
@@ -133,33 +135,31 @@ export default function Home() {
 
   const handleLogin = async (username: string, password: string) => {
     try {
-      // Fetch email for the username
-      const usersRef = ref(realtimeDB, 'users')
-      const snapshot = await get(usersRef)
-      if (!snapshot.exists()) {
-        throw new Error('No user data found')
-      }
-
-      const users = snapshot.val() as Record<string, User>
-      const userEntry = Object.values(users).find(
-        (user: any) => user.email === username
+      // Sign in with email and password
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        username,
+        password
       )
+      const user = userCredential.user
 
-      if (!userEntry) {
-        throw new Error('Username not found')
+      if (user) {
+        // Fetch additional user data after authentication
+        const uid = user.uid
+        const userRef = ref(realtimeDB, `users/${uid}`)
+        const snapshot = await get(userRef)
+
+        if (snapshot.exists()) {
+          const userData = snapshot.val()
+          const role = userData.role || 'viewer' // Default role
+          localStorage.setItem('userRole', role)
+          localStorage.setItem('userUID', uid)
+          console.log('User logged in successfully')
+          setIsAuthenticated(true)
+        } else {
+          throw new Error('User data not found')
+        }
       }
-
-      const email = userEntry.email
-      const role = userEntry.role
-      const uid = Object.keys(users).find((key) => users[key].email === email)
-
-      // Sign in with the retrieved email
-      await signInWithEmailAndPassword(auth, email, password)
-
-      // Store role and UID in local state or context
-      localStorage.setItem('userRole', role)
-      localStorage.setItem('userUID', uid || '')
-      console.log('User logged in successfully')
     } catch (error) {
       alert('Invalid credentials!')
       console.error('Error logging in:', error)
@@ -264,7 +264,8 @@ export default function Home() {
     }
   }
 
-  const isEditor = userRole === 'editor'
+  // const isEditor = userRole === 'editor'
+  const isEditor = false
 
   return (
     <div className="min-h-screen bg-white p-4">
@@ -279,6 +280,12 @@ export default function Home() {
 
           <div className="mt-32">
             <div className="lg:max-w-[70%] mx-auto">
+              {isAuthenticated && (
+                <Alert variant="destructive">
+                  <LockKeyhole className="w-4 h-4" />
+                  <AlertTitle>Приложение больше не работает.</AlertTitle>
+                </Alert>
+              )}
               {isAuthenticated && isEditor && (
                 <OperationForm
                   scrollY={previousScrollPosition}
@@ -289,7 +296,9 @@ export default function Home() {
               )}
               <div className="px-4 pt-6 flex items-center justify-between w-full">
                 <div>
-                  <h3 className="text-lg font-bold">Транзакции за месяц:</h3>
+                  <h3 className="text-sm font-bold sm:text-lg">
+                    Операции за месяц:
+                  </h3>
                   <div className="flex">
                     <p className="text-emerald-500 font-bold">+{totalIncome}</p>
                     <b className="w-5 text-center">|</b>
@@ -301,7 +310,7 @@ export default function Home() {
                   defaultValue={selectedMonth}
                   onValueChange={(value) => setSelectedMonth(value)}
                 >
-                  <SelectTrigger className="w-[180px] capitalize">
+                  <SelectTrigger className="w-[9rem] capitalize">
                     <SelectValue placeholder="За месяц" />
                   </SelectTrigger>
                   <SelectContent>
