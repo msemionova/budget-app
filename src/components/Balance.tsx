@@ -6,7 +6,7 @@ import { LogOut } from 'lucide-react'
 
 const Balance: React.FC<BalanceProps> = ({ balance, handleLogout }) => {
   return (
-    <div className="flex p-4 pb-6 bg-white shadow-lg shadow-slate-500/10 rounded-lg justify-between items-center fixed w-[98vw]">
+    <div className="flex p-4 pb-6 bg-white shadow-lg shadow-slate-500/10 rounded-lg justify-between items-center fixed w-[98vw] z-10">
       <div className="w-4"></div>
       <div className="text-center">
         <h2 className="text-lg font-semibold">Текущий баланс:</h2>

@@ -8,6 +8,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../components/ui/select'
+import { Alert, AlertTitle } from '../components/ui/alert'
+import { LockKeyhole } from 'lucide-react'
 import { v4 as uuidv4 } from 'uuid'
 import { Operation } from '@/lib/types'
 import { format, parseISO, isSameMonth } from 'date-fns'
@@ -262,7 +264,8 @@ export default function Home() {
     }
   }
 
-  const isEditor = userRole === 'editor'
+  // const isEditor = userRole === 'editor'
+  const isEditor = false
 
   return (
     <div className="min-h-screen bg-white p-4">
@@ -277,6 +280,12 @@ export default function Home() {
 
           <div className="mt-32">
             <div className="lg:max-w-[70%] mx-auto">
+              {isAuthenticated && (
+                <Alert variant="destructive">
+                  <LockKeyhole className="w-4 h-4" />
+                  <AlertTitle>Приложение больше не работает.</AlertTitle>
+                </Alert>
+              )}
               {isAuthenticated && isEditor && (
                 <OperationForm
                   scrollY={previousScrollPosition}
