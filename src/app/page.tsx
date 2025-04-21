@@ -46,7 +46,8 @@ export default function Home() {
   useEffect(() => {
     const uniqueMonths = Array.from(
       new Set(operations.map((op) => format(parseISO(op.date), 'yyyy-MM')))
-    )
+    ).sort((a, b) => b.localeCompare(a)) // Сортируем в обратном порядке (от новых к старым)
+
     setMonthsWithData(uniqueMonths)
   }, [operations])
 
