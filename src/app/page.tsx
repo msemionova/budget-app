@@ -49,11 +49,14 @@ export default function Home() {
     ).sort((a, b) => b.localeCompare(a)) // Сортируем в обратном порядке (от новых к старым)
 
     setMonthsWithData(uniqueMonths)
-  }, [operations])
+    if (uniqueMonths.length > 0 && !uniqueMonths.includes(selectedMonth)) {
+      setSelectedMonth(uniqueMonths[0])
+    }
+  }, [operations, selectedMonth])
 
   // Filter operations by the selected month
   const filteredOperations = operations.filter((op) =>
-    isSameMonth(parseISO(op.date), new Date(selectedMonth))
+    isSameMonth(parseISO(op.date), parseISO(`${selectedMonth}-01`))
   )
 
   const totalIncome = filteredOperations
@@ -68,6 +71,7 @@ export default function Home() {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         setIsAuthenticated(true)
+        localStorage.setItem('isAuthenticated', JSON.stringify(true))
         setIsLoading(false)
         const uid = user.uid
 
@@ -83,6 +87,9 @@ export default function Home() {
         setIsAuthenticated(false)
         setIsLoading(false)
         setUserRole('viewer')
+        setOperations([])
+        setBalance(0)
+        localStorage.setItem('isAuthenticated', JSON.stringify(false))
         localStorage.setItem('userRole', 'viewer')
       }
     })
@@ -91,6 +98,10 @@ export default function Home() {
   }, [])
 
   useEffect(() => {
+    if (isLoading || !isAuthenticated) {
+      return
+    }
+
     const operationsRef = ref(realtimeDB, 'operations')
 
     const handleData = (snapshot: any) => {
@@ -106,6 +117,9 @@ export default function Home() {
           0
         )
         setBalance(initialBalance)
+      } else {
+        setOperations([])
+        setBalance(0)
       }
     }
 
@@ -121,16 +135,7 @@ export default function Home() {
       off(operationsRef, 'value', handleData)
       unsubscribe() // Ensure you clean up the listener
     }
-  }, [])
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const isAuthenticated = localStorage.getItem('isAuthenticated')
-      if (isAuthenticated) {
-        setIsAuthenticated(JSON.parse(isAuthenticated))
-      }
-    }
-  }, [])
+  }, [isAuthenticated, isLoading])
 
   const handleLogin = async (username: string, password: string) => {
     try {
@@ -367,7 +372,7 @@ export default function Home() {
                 </div>
 
                 <Select
-                  defaultValue={selectedMonth}
+                  value={selectedMonth}
                   onValueChange={(value) => setSelectedMonth(value)}
                 >
                   <SelectTrigger className="w-[9rem] capitalize">
