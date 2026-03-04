@@ -1,7 +1,7 @@
 {
   "hosting": {
     "public": "out",
-    "site": "it-camp-budget",
+    "site": "budget-planner",
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"]
   }
 }
