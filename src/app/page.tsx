@@ -178,16 +178,37 @@ export default function Home() {
   const handleAddOperation = (
     amount: number,
     description: string,
-    type: 'income' | 'expense'
+    type: 'income' | 'expense',
+    dateInput?: string
   ) => {
+    const toIsoWithTime = (selectedDate: string, fallbackDate?: string) => {
+      const sourceDate = fallbackDate ? new Date(fallbackDate) : new Date()
+      const [year, month, day] = selectedDate.split('-').map(Number)
+      const selectedDateTime = new Date(
+        year,
+        month - 1,
+        day,
+        sourceDate.getHours(),
+        sourceDate.getMinutes(),
+        sourceDate.getSeconds(),
+        sourceDate.getMilliseconds()
+      )
+      return selectedDateTime.toISOString()
+    }
+
     const formattedAmount = Number(amount)
     if (editingOperation) {
+      const updatedDate =
+        dateInput && dateInput.length > 0
+          ? toIsoWithTime(dateInput, editingOperation.date)
+          : editingOperation.date
+
       // Update the operation in Firebase
       update(ref(realtimeDB, `operations/${editingOperation.id}`), {
         amount: formattedAmount,
         description,
         type,
-        date: editingOperation.date, // Ensure the date is kept unchanged
+        date: updatedDate,
       })
         .then(() => {
           const adjustedBalance =
@@ -202,7 +223,13 @@ export default function Home() {
 
           const updatedOperations = operations.map((op) => {
             if (op.id === editingOperation.id) {
-              return { ...op, amount: formattedAmount, description, type }
+              return {
+                ...op,
+                amount: formattedAmount,
+                description,
+                type,
+                date: updatedDate,
+              }
             }
             return op
           })
@@ -220,7 +247,10 @@ export default function Home() {
         amount: formattedAmount,
         description,
         type,
-        date: new Date().toISOString(), // Ensure date is set when creating new operations
+        date:
+          dateInput && dateInput.length > 0
+            ? toIsoWithTime(dateInput)
+            : new Date().toISOString(),
       }
 
       // Add the new operation to Firebase
@@ -239,6 +269,44 @@ export default function Home() {
           console.error('Error adding operation:', error)
         })
     }
+  }
+
+  const handleUpdateOperationDate = (id: string, dateInput: string) => {
+    const operationToUpdate = operations.find((op) => op.id === id)
+    if (!operationToUpdate || !dateInput) {
+      return
+    }
+
+    const baseDate = new Date(operationToUpdate.date)
+    const [year, month, day] = dateInput.split('-').map(Number)
+    const updatedDate = new Date(
+      year,
+      month - 1,
+      day,
+      baseDate.getHours(),
+      baseDate.getMinutes(),
+      baseDate.getSeconds(),
+      baseDate.getMilliseconds()
+    ).toISOString()
+
+    update(ref(realtimeDB, `operations/${id}`), {
+      ...operationToUpdate,
+      date: updatedDate,
+    })
+      .then(() => {
+        const updatedOperations = operations.map((op) =>
+          op.id === id ? { ...op, date: updatedDate } : op
+        )
+        setOperations(updatedOperations)
+        localStorage.setItem('operations', JSON.stringify(updatedOperations))
+
+        if (editingOperation?.id === id) {
+          setEditingOperation({ ...editingOperation, date: updatedDate })
+        }
+      })
+      .catch((error) => {
+        console.error('Error updating operation date:', error)
+      })
   }
 
   const handleEditOperation = (id: string) => {
@@ -325,6 +393,7 @@ export default function Home() {
                 operations={filteredOperations}
                 onEdit={handleEditOperation}
                 onDelete={handleDeleteOperation}
+                onUpdateDate={handleUpdateOperationDate}
                 isAuthenticated={isAuthenticated && isEditor}
                 setPreviousScrollPosition={setPreviousScrollPosition}
               />

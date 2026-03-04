@@ -10,7 +10,7 @@ import {
   DialogFooter,
   DialogClose,
 } from '@/components/ui/dialog'
-import { Pencil, Trash } from 'lucide-react'
+import { Calendar, Pencil, Trash } from 'lucide-react'
 import { OperationsLogProps } from '@/lib/types'
 import {
   groupByDate,
@@ -23,11 +23,26 @@ const OperationsLog: React.FC<OperationsLogProps> = ({
   operations,
   onEdit,
   onDelete,
+  onUpdateDate,
   isAuthenticated,
   setPreviousScrollPosition,
 }) => {
-  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [dateEditorOperationId, setDateEditorOperationId] = useState<
+    string | null
+  >(null)
+  const [dateInput, setDateInput] = useState('')
   const groupedOperations = groupByDate(operations)
+
+  const toDateInputValue = (dateString: string) => {
+    const date = new Date(dateString)
+    if (Number.isNaN(date.getTime())) {
+      return ''
+    }
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    return `${year}-${month}-${day}`
+  }
 
   const sortedDateGroups = Object.keys(groupedOperations).sort(
     (a: string, b: string) => {
@@ -51,6 +66,37 @@ const OperationsLog: React.FC<OperationsLogProps> = ({
                 key={op.id}
                 className={`group p-2 rounded ${op.type === 'income' ? 'bg-emerald-50' : 'bg-rose-50'}`}
               >
+                <div
+                  className={`overflow-hidden transition-all duration-300 ${
+                    dateEditorOperationId === op.id
+                      ? 'max-h-24 opacity-100 mb-2'
+                      : 'max-h-0 opacity-0'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="date"
+                      value={dateInput}
+                      onChange={(e) => setDateInput(e.target.value)}
+                      className="h-10 p-2 border rounded bg-white hover:ring-2 hover:ring-impact transition-all flex-1"
+                    />
+                    <Button
+                      type="button"
+                      size="sm"
+                      className="bg-emerald-500 text-white w-auto"
+                      onClick={() => {
+                        if (!dateInput) {
+                          return
+                        }
+                        onUpdateDate(op.id, dateInput)
+                        setDateEditorOperationId(null)
+                        setDateInput('')
+                      }}
+                    >
+                      Сохранить
+                    </Button>
+                  </div>
+                </div>
                 <div className="flex justify-between">
                   <div>
                     <b>
@@ -84,6 +130,25 @@ const OperationsLog: React.FC<OperationsLogProps> = ({
                         className="text-slate-500"
                       >
                         <Pencil />
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="link"
+                        size="icon"
+                        className="text-slate-500"
+                        onClick={() => {
+                          if (dateEditorOperationId === op.id) {
+                            setDateEditorOperationId(null)
+                            setDateInput('')
+                            return
+                          }
+                          setDateEditorOperationId(op.id)
+                          setDateInput(toDateInputValue(op.date))
+                        }}
+                        title="Изменить дату"
+                        aria-label="Изменить дату"
+                      >
+                        <Calendar />
                       </Button>
                       <Dialog>
                         <DialogTrigger className="w-10 h-10">

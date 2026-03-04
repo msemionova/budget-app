@@ -15,7 +15,8 @@ export interface OperationFormProps {
   onAddOperation: (
     amount: number,
     description: string,
-    type: 'income' | 'expense'
+    type: 'income' | 'expense',
+    dateInput?: string
   ) => void
   initialOperation?: Operation | null
   isAuthenticated: boolean
@@ -26,6 +27,7 @@ export interface OperationsLogProps {
   operations: Operation[]
   onEdit: (id: string) => void
   onDelete: (id: string) => void
+  onUpdateDate: (id: string, dateInput: string) => void
   isAuthenticated: boolean
   setPreviousScrollPosition: (scrollY: number) => void
 }
